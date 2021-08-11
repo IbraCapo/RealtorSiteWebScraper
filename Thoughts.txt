@@ -1,0 +1,39 @@
+To search through multiple pages im gonna need to
+first off, link is simple
+	pages go as link + numPage + "_p/"
+
+can make whole page a while loop as
+
+while numberAfterHyphen > numberAfterOf then:
+	run the program and at the end of this while increment +1
+
+
+after while get contents of houses_collection and put in csv again
+at some point include the links
+
+---------------------------------------------------------------------
+class of "xx-xx of xxx results" is "Text__TextBase-sc-1cait9d-0-div Text__TextContainerBase-sc-1cait9d-1 RBSGf"
+on every page pull out above class to make comparison before moving to next page
+
+ok while loop is gonna need to change link
+link increments like this-
+[link] + pageNumber + "_p/"
+	predefine pageNumber as 1
+have everthing run 1 time before the while loop to establish current and total maxes
+---------------------------------------------------------------------------
+should for loop run in while loop? can make for loop a def that is callleeeeeed createMaxes?
+oR, don't loop but find pos of min and max and keep it steppin how?
+ok split list 0 with "-" get 1 that's current min across every page
+max gonna be the same after the first time u find it but it's also the 3rd (index 2) all the time ez
+
+while loop can be-
+while current_max != total_max:
+	makeCollection(property_cards, houses_collection)
+---------------------------------------------------------------------------
+might have to change to for loop instead while loop being really unpredictable
+
+approach-
+find "a" element class = "ButtonBase-sc-14ooajz-0 PaginationButton-sc-1yuoxn6-1 fea-DjF" at index 4
+take the text, make it an int, that's the max page ok
+
+gonna have to specify pages numbers manually because program doesn't count the loaded page right
