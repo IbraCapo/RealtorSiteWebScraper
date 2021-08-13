@@ -1,2 +1,5 @@
 # RealtorSiteWebScraper
-Using Python3 and BeautifulSoup to create a webscraper gets and sorts data on houses for sale for any given city in the United States
+Using Python3 to create a webscraper for the website trulia.com
+Modules used/tested so far:
+  BeautifulSoup
+  requests-html
