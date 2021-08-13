@@ -2,6 +2,7 @@ from requests_html import HTML, HTMLSession, AsyncHTMLSession
 from Houses import House, HouseCollection
 import time #gonna keep track of the time that each run takes based off my modifications
 
+
 #Function to get and store links
 def get_links(link):
     #basically loading the page that will be scraped
@@ -12,10 +13,13 @@ def get_links(link):
     #finds the sites that brings you to the page of all the houses that are for sale, not all the links on the page
     site_links = site.absolute_links 
     for linked_site in site_links:
-        
-        if linked_site.find("/p/ct/bridgeport") > 0:
-            links.append(linked_site)
-    fetchData()
+        if (linked_site in links) == False:
+            if linked_site.find("/p/ct/bridgeport") > 0:
+                links.append(linked_site)
+        else:
+            print("There was a duplicate file out here man")
+    
+
 #finds how many pages are going to be gone through based off of .../x_p/ available from the bottom of the page that the program sees, not that I see
 def get_max_pages(main_link):
     s = HTMLSession()
@@ -28,7 +32,11 @@ def get_max_pages(main_link):
 
 def fetchData(): #House object needs address, price, mortgage, size, and the link
     s = HTMLSession()
+    count = 0
     for link in links:
+        count+= 1
+        
+        #print("ran through", count, "times")
         site = s.get(link).html
         #this one is for the side that has the address, beds, baths, and size
         success = success2 = success3 = False
@@ -61,29 +69,26 @@ def fetchData(): #House object needs address, price, mortgage, size, and the lin
             success3 = True
             if success == success2 == success3 == True:
                 
-                the_house = House(address, int(price), int(mortgage), int(size), link)
-                houses.add(the_house)
                 
-
+                houses.add(House(address, int(price), int(mortgage), int(size), link))
+                
+            if count%100 == 0:
+                print(count, " times looped in fetch_data")
             else: print("Couldn't make a house object from",link)
         except:
             print("mortgage not found")
-            
-
 
 
 def main():
-
     website = "https://www.trulia.com/CT/Bridgeport/"#input("Enter the trulia website link that has the city and state on it: ")
-    #website = "https://www.trulia.com/TX/Houston/"
-    
-    #Going through the pages and adding each link to our list called links (not a linked list fyi)
-    #gotta make this async somehow
     max_pages = get_max_pages(website)
     for i in range(max_pages):
         get_links(website + str(i+1) + "_p/")
-        print('Finished page', i, 'out of', max_pages)
+        print("Completed", str(i+1), "pages out of", max_pages)
 
+    fetchData()
+
+    print(len(links))
     web_split = website.split("/")
     file_city = web_split[3]
     file_state = web_split[4]
@@ -91,18 +96,8 @@ def main():
     headers = "Address, Price, Est Mortgage, Size, Website\n"
     links_file.write(headers)
     for x in houses.getCollection():
-        links_file.write(x.address + "," + str(x.price) + "," + str(x.mortgage) + "," + str(x.size) + "," + x.link + "," + "\n")
+        links_file.write(x.address + "," + "$" + str(x.price) + "," + "$" + str(x.mortgage) + "," + str(x.size) + "sq. ft" + "," + x.link + "," + "\n")
     links_file.close()
-    #after the file is created, all the linked extracted then we go to each link in the file and visit the webpage, get the info, and leave
-    #gotta make this async somehow
-    #should create a new list that will be sorted afterwards I think
-    """link_file = open("trulia_" + file_city + "_" + file_state, "r")
-    for url in link_file:
-        print(url)
-    
-    link_file.close()"""
-
-#going to keep track on how long this takes since I am trying to get the fastest completion time
 
 startTime = time.perf_counter()
 houses = HouseCollection()
