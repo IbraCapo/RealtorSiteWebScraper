@@ -17,7 +17,7 @@ def get_links(link):
             if linked_site.find("/p/ct/bridgeport") > 0:
                 links.append(linked_site)
         else:
-            print("There was a duplicate file out here man")
+            print("There was a duplicate link")
     
 
 #finds how many pages are going to be gone through based off of .../x_p/ available from the bottom of the page that the program sees, not that I see
@@ -30,12 +30,26 @@ def get_max_pages(main_link):
 
     return max_pages
 
-def fetchData(): #House object needs address, price, mortgage, size, and the link
+#gotta do what I gotta do
+def find_size(li):
+    temp_str = ""
+    for item in li:
+        if item.text != "Studio":
+            all_txt = item.text.split(" ")
+            if all_txt[1] != "Beds" and all_txt[1] != "Baths":
+                for letters in all_txt[0]:
+                    if letters.isdigit():
+                        temp_str += letters
+            pass
+    return temp_str
+
+def fetch_data(): #House object needs address, price, mortgage, size, and the link
     s = HTMLSession()
     count = 0
     for link in links:
         count+= 1
-        
+        if count%50 == 0:
+            print("Looped through fetch_data", count, "times.")
         #print("ran through", count, "times")
         site = s.get(link).html
         #this one is for the side that has the address, beds, baths, and size
@@ -43,14 +57,14 @@ def fetchData(): #House object needs address, price, mortgage, size, and the lin
         try:
             property_info = site.find(".kzUlfS",first=True)
             house_info = property_info.find("span")
-            size = property_info.find("li")[2].text.replace(",","").replace(" sqft","")
             address = house_info[0].text.replace(", ", " ").replace(",", "") + " " + house_info[1].text.replace(", ", " ").replace(",","")
+            size = find_size(property_info.find("li"))
+            
             success = True
             #print(address)
             #print(address, size)
         except:
-            print("Couldn't find address or size")
-        
+            print("Couldn't find address or size for", link)
         try:
             pricing_info = site.find(".eMsDQ")[1]
             price = pricing_info.find("h3", first=True).text.replace("$","").replace(",","")
@@ -61,24 +75,23 @@ def fetchData(): #House object needs address, price, mortgage, size, and the lin
         
         try:
             mortgage = ""
-            for letter in pricing_info.find(".LRvbQ",first=True).text.split(" ")[2]:
+            for letter in pricing_info.find(".LRvbQ",first=True).text:
                 if letter.isdigit():
                     mortgage += letter
 
             #print(mortgage)
-            success3 = True
-            if success == success2 == success3 == True:
-                
-                
-                houses.add(House(address, int(price), int(mortgage), int(size), link))
-                
-            if count%100 == 0:
-                print(count, " times looped in fetch_data")
-            else: print("Couldn't make a house object from",link)
+            success3 = True  
+            
         except:
             print("mortgage not found")
 
+        try:
+            if success == success2 == success3 == True:
+                    houses.add(House(address, int(price), int(mortgage), int(size), link))
 
+            else: print("Couldn't make a house object from",link) 
+        except Exception as e:
+            print(e, "price:", str(price), "mortgage:", str(mortgage), "size:", str(size),  link)
 def main():
     website = "https://www.trulia.com/CT/Bridgeport/"#input("Enter the trulia website link that has the city and state on it: ")
     max_pages = get_max_pages(website)
@@ -86,7 +99,8 @@ def main():
         get_links(website + str(i+1) + "_p/")
         print("Completed", str(i+1), "pages out of", max_pages)
 
-    fetchData()
+    fetch_data()
+    houses.mSort()
 
     print(len(links))
     web_split = website.split("/")

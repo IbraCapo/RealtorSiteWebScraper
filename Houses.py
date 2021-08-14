@@ -70,35 +70,38 @@ class HouseCollection:
             self.collection.append(house)
              
     #using merge sort algorithm
-    def sort(self, arr, l, r):
-        if len(arr) >1:
-            mid = int(len(self.collection) / 2)
-            L = self.collection[:mid]
-            R = self.collection[mid:]
+    def mergeSort(self, arr):
+        if len(arr) > 1:
+            mid = len(arr)//2
+            
+            L = arr[:mid]
+            R = arr[mid:]
 
-            sort(arr, L, R)
+            self.mergeSort(L)
+            self.mergeSort(R)
+
         
-        i = j = k = 0
-        while i < len(L) and j < len(R):
-            if L[i] < R[j]:
+            i = j = k = 0
+            while i < len(L) and j < len(R):
+                if L[i] <= R[j]:
+                    arr[k] = L[i]
+                    i+=1
+                else:
+                    arr[k] = R[j]
+                    j+=1
+                k+=1
+
+            #finds the spares.
+            while i < len(L):
                 arr[k] = L[i]
                 i+=1
                 k+=1
-            else:
+            while j < len(R):
                 arr[k] = R[j]
                 j+=1
                 k+=1
-        
-        #to catch the rest
-        while i < len(L):
-            arr[k] = L[i]
-            i+=1
-            k+=1
-        
-        while j < len(R):
-            arr[k] = R[j]
-            j+=1
-            k+=1
+    def mSort(self):
+        self.mergeSort(self.collection)
 
     def getCollection(self):
         return self.collection
